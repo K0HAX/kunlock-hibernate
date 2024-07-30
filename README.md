@@ -1,4 +1,4 @@
-# Unlocksuspend
+# UnlockHibernate
 This is a Linux [Livepatch](https://www.kernel.org/doc/html/latest/livepatch/module-elf-format.html) module which overrides Kernel Lockdown to allow hibernating when the computer has Secure Boot enabled.
 
 ## Security Implications
