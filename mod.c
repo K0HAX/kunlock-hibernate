@@ -55,9 +55,8 @@ struct security_hook_heads * mod_security_hook_heads;
 })
 
 static unsigned long (*kla)(const char* name);
-int* nohibernate;
 
-/* We need to look up nohibernate, get a pointer to kallsyms_lookup_name. */
+/* We need to look up security_hook_heads, get a pointer to kallsyms_lookup_name. */
 static int resolve_kla(void)
 {
     struct kprobe kla_kp = {.symbol_name = "kallsyms_lookup_name"};
@@ -74,13 +73,6 @@ static int resolve_kla(void)
     return 0;
 }
 
-bool livepatch_hibernation_available(void) {
-    pr_info("Patched hibernation_available called\n");
-    // Hibernation IS available if this function returns true.
-    return *nohibernate == 0 &&
-        !cxl_mem_active();
-}
-
 int livepatch_security_locked_down(enum lockdown_reason what)
 {
     pr_info("Patched security_locked_down called\n");
@@ -92,10 +84,6 @@ int livepatch_security_locked_down(enum lockdown_reason what)
 }
 
 static struct klp_func funcs[] = {
-    {
-        .old_name = "hibernation_available",
-        .new_func = livepatch_hibernation_available,
-    },
     {
         .old_name = "security_locked_down",
         .new_func = livepatch_security_locked_down,
@@ -114,20 +102,6 @@ static struct klp_patch patch = {
     .objs = objs,
 };
 
-static int get_nohibernate(void)
-{
-    int err = resolve_kla();
-    if (err < 0)
-        return err;
-    nohibernate = (int*)kla("nohibernate");
-    if (!nohibernate)
-    {
-        printk(KERN_ERR "kunlock-suspend: failed to find nohibernate symbol\n");
-        return -ENOENT;
-    }
-    return 0;
-}
-
 static int get_security_hook_heads(void)
 {
     int err = resolve_kla();
@@ -136,7 +110,7 @@ static int get_security_hook_heads(void)
     mod_security_hook_heads = (struct security_hook_heads*)kla("security_hook_heads");
     if (!mod_security_hook_heads)
     {
-        printk(KERN_ERR "kunlock-suspend: failed to find nohibernate symbol\n");
+        printk(KERN_ERR "kunlock-suspend: failed to find security_hook_heads symbol\n");
         return -ENOENT;
     }
     return 0;
@@ -146,9 +120,6 @@ static int livepatch_init(void)
 {
     int ret;
     int err;
-    err = get_nohibernate();
-    if (err < 0)
-        return err;
     err = get_security_hook_heads();
     if (err < 0)
         return err;
