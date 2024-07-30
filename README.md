@@ -1,5 +1,5 @@
 # UnlockHibernate
-This is a Linux [Livepatch](https://www.kernel.org/doc/html/latest/livepatch/module-elf-format.html) module which overrides Kernel Lockdown to allow hibernating when the computer has Secure Boot enabled.
+This is a Linux [Livepatch](https://www.kernel.org/doc/html/latest/livepatch/livepatch.html) module which overrides Kernel Lockdown to allow hibernating when the computer has Secure Boot enabled.
 
 ## Security Implications
 This module is **DANGEROUS**. Do not load it without fully understanding the security implications.
@@ -12,6 +12,6 @@ The Linux kernel developers are smarter than I am. But I decided to bypass their
 ## Instructions
 - Look over the `Makefile` and change references to make module signing work (if you use it) or remove module signing if you do not use it.
 - Build and install the module to `/lib/modules/$(uname -r)`
-- Add the module to Dracut, by adding the line `force_drivers+=" unlocksuspend "` to `/etc/dracut.conf.d/flags.conf` and rebuilding the initrd
+- Add the module to Dracut, by adding the line `force_drivers+=" unlockhibernate "` to `/etc/dracut.conf.d/flags.conf` and rebuilding the initrd
 - Reboot
 - Enjoy!

@@ -76,18 +76,16 @@ static int resolve_kla(void)
 
 bool livepatch_hibernation_available(void) {
     pr_info("Patched hibernation_available called\n");
-    return false;
-    /*
+    // Hibernation IS available if this function returns true.
     return *nohibernate == 0 &&
         !cxl_mem_active();
-    */
 }
 
 int livepatch_security_locked_down(enum lockdown_reason what)
 {
     pr_info("Patched security_locked_down called\n");
-    // 5 == LOCKDOWN_HIBERNATION
-    if (what == 5) {
+    // LOCKDOWN_HIBERNATION = 5
+    if (what == LOCKDOWN_HIBERNATION) {
         return 0;
     }
     return call_int_hook(locked_down, 0, what);
